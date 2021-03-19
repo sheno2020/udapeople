@@ -96,13 +96,12 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      steps:
-        - checkout
-        - run:
-            name: Scan frontend
-            command: |
-              cd frontend
-              npm audit --audit-level=critical
+      - checkout
+      - run:
+          name: Scan frontend
+          command: |
+            cd frontend
+            npm audit --audit-level=critical
 
   scan-backend:
     docker:
