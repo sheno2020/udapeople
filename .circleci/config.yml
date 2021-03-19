@@ -90,7 +90,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      - slack-notification-fail
+      - slack-failed
 
   build-backend:
     docker:
@@ -108,7 +108,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - slack-notification-fail
+      - slack-failed
 
   test-frontend:
     docker:
@@ -122,7 +122,7 @@ jobs:
             npm i
             npm install oauth-sign
             npm run test
-      - slack-notification-fail
+      - slack-failed
 
   test-backend:
     docker:
@@ -135,7 +135,7 @@ jobs:
             cd backend
             npm i
             npm run test
-      - slack-notification-fail
+      - slack-failed
 
   scan-frontend:
     docker:
@@ -147,7 +147,7 @@ jobs:
           command: |
             cd frontend
             npm audit --audit-level=critical
-      - slack-notification-fail
+      - slack-failed
 
   scan-backend:
     docker:
@@ -159,7 +159,7 @@ jobs:
           command: |
             cd backend
             npm audit --audit-level=critical
-      - slack-notification-fail
+      - slack-failed
 
 #  deploy-infrastructure:
 #    docker:
