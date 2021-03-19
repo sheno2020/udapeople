@@ -85,10 +85,9 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Run frontend tests
+          name: Run backend tests
           command: |
-            cd frontend
-            npm i
+            cd backend
             npm run test
 #
 #  scan-frontend:
