@@ -143,28 +143,30 @@ jobs:
             npm audit fix --audit-level=critical --force
       - slack-failed
 
-#  deploy-infrastructure:
-#    docker:
-#      - image: amazon/aws-cli
-#    steps:
-#      - checkout
-#      - run:
-#          name: Ensure back-end infrastructure exists
-#          command: |
-#            aws cloudformation deploy \
-#              --template-file .circleci/files/backend.yml \
-#              --tags project=backend-infra \
-#              --stack-name "backend-infra-${CIRCLE_WORKFLOW_ID}" \
-#              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
-#      - run:
-#          name: Ensure front-end infrastructure exist
-#          command: |
-#            aws cloudformation deploy \
-#              --template-file .circleci/files/frontend.yml \
-#              #--tags project=your-tag \
-#              # --stack-name "your front-end stack name with workflow id" \
-#              # --parameter-overrides ID="your workflow id"
-#              exit 1
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags project=backend-infra \
+              --stack-name "backend-infra-${CIRCLE_WORKFLOW_ID}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=frontend-infra \
+              --stack-name "frontend-infra-${CIRCLE_WORKFLOW_ID}" \
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}"
+
+      - slack-failed
+
 #      - run:
 #          name: Add back-end ip to ansible inventory
 #          command: |
@@ -174,8 +176,8 @@ jobs:
 #          root: ~/
 #          paths:
 #            - project/.circleci/ansible/inventory.txt
-#      # Here's where you will add some code to rollback on failure
-#
+      # Here's where you will add some code to rollback on failure
+
 #  configure-infrastructure:
 #    docker:
 #      # Docker image here that supports Ansible
@@ -321,8 +323,8 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-#      - deploy-infrastructure:
-#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
 #            branches:
 #              only: [test-feature-branch]
