@@ -161,16 +161,16 @@ jobs:
               --stack-name "backend-infra-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
       - run:
-        name: Add back-end ip to ansible inventory
-        command: |
-          BACKEND_IP=`aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=backend-infra-${CIRCLE_WORKFLOW_ID}" \
-            --query "Reservations[*].Instances[*].[PublicDnsName]" \
-            --output text | tr -d '\n'`
-          echo $BACKEND_IP >> .circleci/ansible/inventory.txt
-          cat .circleci/ansible/inventory.txt
+          name: Add back-end ip to ansible inventory
+          command: |
+            BACKEND_IP=`aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-infra-${CIRCLE_WORKFLOW_ID}" \
+              --query "Reservations[*].Instances[*].[PublicDnsName]" \
+              --output text | tr -d '\n'`
+            echo $BACKEND_IP >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
 
-          curl -H "Content-Type: text/plain" -H "token: 6006f5ac-accd-43f0-a629-42eb3177af91" --request PUT --data "$BACKEND_IP" https://api.memstash.io/values/BACKEND_IP_${CIRCLE_WORKFLOW_ID}
+            curl -H "Content-Type: text/plain" -H "token: 6006f5ac-accd-43f0-a629-42eb3177af91" --request PUT --data "$BACKEND_IP" https://api.memstash.io/values/BACKEND_IP_${CIRCLE_WORKFLOW_ID}
 
       - persist_to_workspace:
           root: ~/
