@@ -233,6 +233,7 @@ jobs:
             cd backend
             npm i
             npm audit fix --audit-level=critical --force
+            npm run build
             npm run migrations > /tmp/migration.log
             success=$(cat migration.log | grep -c "has been executed successfully")
             if [ success > 0 ]; then exit 0; else exit 1; fi;
@@ -269,23 +270,33 @@ jobs:
           command: |
             aws s3 cp --recursive frontend/dist "s3://udapeople-${CIRCLE_WORKFLOW}"
       - slack-failed
-#
-#  deploy-backend:
-#    docker:
-#      # Docker image here that supports Ansible
-#    steps:
-#      # Checkout code from git
-#      # Add ssh keys with fingerprint
-#      # attach workspace
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # your code here
-#      - run:
-#          name: Deploy backend
-#          command: |
-#            # your code here
-#      # Here's where you will add some code to rollback on failure
+
+  deploy-backend:
+    docker:
+      - image: mrlesmithjr/ubuntu-ansible
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "f9:a4:2d:d2:85:49:b8:df:40:2a:b4:00:51:f4:fa:f0"
+      - run:
+          name: Install dependencies
+          command: |
+            apt -y update
+            apt -y install jq tar gzip git curl
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Build Backend
+          command: |
+            cd backend
+            npm i
+            npm run build
+      - run:
+          name: Deploy backend
+          command: |
+            cd ~/project/.circleci/ansible
+            ansible-playbook deploy-backend.yml --inventory-file=inventory.txt
 #
 #  smoke-test:
 #    docker:
@@ -369,8 +380,8 @@ workflows:
           requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
-#      - deploy-backend:
-#          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
 #      - smoke-test:
 #          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
