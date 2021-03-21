@@ -1,7 +1,12 @@
-- name: "Upgrade packages"
+- name: "Upgrade Packages"
   become: true
   apt:
     upgrade: "yes"
+
+- name: "Install Python3"
+  become: true
+  shell:
+    apt-get -y install python3
 
 - name: "Install nodejs and dependencies"
   become: true
