@@ -243,7 +243,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            npm i
+            echo "----------------"
             npm run migrations > /tmp/migration.log
             echo "----------------"
             cat /tmp/migration.log
