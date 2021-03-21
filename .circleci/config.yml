@@ -244,6 +244,7 @@ jobs:
       - run:
           name: Create .env file
           command: |
+            touch backend/.env
             echo ENVIRONMENT=production > "backend/.env"
             echo NODE_ENV=production >> "backend/.env"
             echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "backend/.env"
@@ -254,7 +255,8 @@ jobs:
             echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+            echo TYPEORM_DATABASE=udapeople >> "backend/.env"
+            cat backend/.env
       - run:
           name: Run migrations
           command: |
