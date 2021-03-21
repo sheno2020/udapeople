@@ -251,6 +251,7 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
 
             cd backend
+            npm i
             npm run migrations > /tmp/migration.log > /tmp/migration.log
             success=$(cat migration.log | grep -c "has been executed successfully")
             if [ success > 0 ]; then exit 0; else exit 1; fi;
