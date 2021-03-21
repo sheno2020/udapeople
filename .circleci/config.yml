@@ -256,14 +256,9 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
 
             cd backend
-            sudo npm install -g npm-install-peers
-            npm -v
-            node -v
-            sudo npm run migrations > migration.log
-            cat migration.log
-            SUCCESS=$(cat migration.log | grep -c "has been executed successfully")
-            echo $SUCCESS
-            if [ SUCCESS > 0 ]; then exit 0; else exit 1; fi;
+            npm i
+            npm run migrations > /tmp/migration.log
+
       - run:
           name: Send migration results to memstash
           command: |
