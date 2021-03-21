@@ -225,6 +225,7 @@ jobs:
             ansible-playbook configure-server.yml --inventory-file=inventory.txt
 
       - slack-failed
+      - destroy-environment
 
   run-migrations:
     docker:
@@ -263,6 +264,7 @@ jobs:
           command: |
             curl -H "Content-Type: text/plain" -H "token: 6006f5ac-accd-43f0-a629-42eb3177af91" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
       - slack-failed
+      - destroy-environment
 
 
   deploy-frontend:
