@@ -213,7 +213,7 @@ jobs:
           command: |
             echo ENVIRONMENT=production > "backend/.env"
             echo NODE_ENV=production >> "backend/.env"
-            echo TYPEORM_CONNECTIONTYPEORM_CONNECTION=$ >> "backend/.env"
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "backend/.env"
             echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "backend/.env"
             echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "backend/.env"
             echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/.env"
@@ -240,7 +240,7 @@ jobs:
           command: |
             echo ENVIRONMENT=production > "backend/.env"
             echo NODE_ENV=production >> "backend/.env"
-            echo TYPEORM_CONNECTIONTYPEORM_CONNECTION=$ >> "backend/.env"
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "backend/.env"
             echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "backend/.env"
             echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "backend/.env"
             echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/.env"
@@ -251,7 +251,7 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
 
             cd backend
-            npm i
+            npm audit fix --audit-level=critical --force
             npm run migrations > /tmp/migration.log > /tmp/migration.log
             success=$(cat migration.log | grep -c "has been executed successfully")
             if [ success > 0 ]; then exit 0; else exit 1; fi;
