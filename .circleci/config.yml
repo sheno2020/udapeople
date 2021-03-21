@@ -229,15 +229,10 @@ jobs:
 
   run-migrations:
     docker:
-      - image: amazon/aws-cli
+      - image: circleci/node:13.8.0
     steps:
       - checkout
-
-      - run:
-          name: Install dependencies
-          command: |
-            curl -sL https://rpm.nodesource.com/setup_12.x | bash -
-            yum -y install nodejs npm tar gzip jq git
+      - aws-cli/setup
 
       - run:
           name: Run migrations
