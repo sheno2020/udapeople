@@ -248,6 +248,8 @@ jobs:
           command: |
             cd backend
             npm i
+            npm -v
+            node -v
             npm run migrations > /tmp/migration.log
             cat /tmp/migration.log
 
