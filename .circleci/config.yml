@@ -38,8 +38,8 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name << pipeline.parameters.backend-infra >>
-            aws cloudformation delete-stack --stack-name << pipeline.parameters.frontend-infra >>
+            aws cloudformation delete-stack --stack-name << parameters.backend-infra >>
+            aws cloudformation delete-stack --stack-name << parameters.frontend-infra >>
             exit 0
 
   revert-migrations:
