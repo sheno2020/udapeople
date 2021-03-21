@@ -163,13 +163,13 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --tags project=udapeople \
+              --tags project=udapeople type=backend\
               --stack-name "backend-infra-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            BACKEND_IP=`aws ec2 describe-instances --filters "Name=tag:project,Values=udapeople" --query "Reservations[*].Instances[*].[PublicIpAddress]" --output text`
+            BACKEND_IP=`aws ec2 describe-instances --filters "Name=tag:type,Values=backend" --query "Reservations[*].Instances[*].PublicIpAddress" --output text`
             echo $BACKEND_IP >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
 
@@ -185,7 +185,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags project=udapeople \
+              --tags project=udapeople type=frontend\
               --stack-name "frontend-infra-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
 
