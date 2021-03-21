@@ -243,14 +243,8 @@ jobs:
           command: |
             cd backend
             npm i
-            npm -v
-            node -v
             npm run migrations > /tmp/migration.log
             cat /tmp/migration.log
-      - run:
-          name: Send migration results to memstash
-          command: |
-            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT --data "$SUCCESS" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
       - slack-failed
       - destroy-environment
 
