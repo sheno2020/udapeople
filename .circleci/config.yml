@@ -256,7 +256,6 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
 
             cd backend
-            npm cache clean
             npm install -g npm-install-peers
             npm -v
             node -v
