@@ -27,14 +27,20 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      # Add parameter here   
+      backend-infra:
+        type: string
+        default: backend-infra-${CIRCLE_WORKFLOW_ID}
+      frontend-infra:
+        type: string
+        default: frontend-infra-${CIRCLE_WORKFLOW_ID}
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            # Your code here
-            exit 1
+            aws cloudformation delete-stack --stack-name << pipeline.parameters.backend-infra >>
+            aws cloudformation delete-stack --stack-name << pipeline.parameters.frontend-infra >>
+            exit 0
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -163,10 +169,7 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            BACKEND_IP=`aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-infra-${CIRCLE_WORKFLOW_ID}" \
-              --query "Reservations[*].Instances[*].[PublicDnsName]" \
-              --output text | tr -d '\n'`
+            BACKEND_IP=`aws ec2 describe-instances --filters "Name=tag:project,Values=udapeople" --query "Reservations[*].Instances[*].[PublicIpAddress]" --output text`
             echo $BACKEND_IP >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
 
@@ -187,6 +190,7 @@ jobs:
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
 
       - slack-failed
+      - destroy-environment
 
   configure-infrastructure:
     docker:
