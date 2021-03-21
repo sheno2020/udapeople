@@ -259,7 +259,6 @@ jobs:
             sudo npm install -g npm-install-peers
             npm -v
             node -v
-            npm audit fix --audit-level=critical --force
             sudo npm run migrations > migration.log
             cat migration.log
             SUCCESS=$(cat migration.log | grep -c "has been executed successfully")
