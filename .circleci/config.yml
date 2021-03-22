@@ -331,9 +331,10 @@ jobs:
       - run:
           name: Deploy backend
           command: |
+            export NODE_ENV=production
+            echo NODE_ENV=production >> "backend/.env"
             cd backend
             npm i
-            echo NODE_ENV=production >> "backend/.env"
             npm run build
             cp package* ./dist
             cd dist
