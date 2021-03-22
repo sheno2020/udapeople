@@ -319,15 +319,14 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/
-      - restore_cache:
-          key: backend-build
       - run:
           name: Install dependencies
           command: |
             apk add --update ansible
-            apk add jq tar gzip git curl nodejs
-            apk add npm
+            apk add jq tar gzip git curl
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+      - restore_cache:
+          key: [backend-build]
       - add_ssh_keys:
           fingerprints:
             - "f9:a4:2d:d2:85:49:b8:df:40:2a:b4:00:51:f4:fa:f0"
@@ -347,8 +346,7 @@ jobs:
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             cat .circleci/ansible/inventory.txt
-            cd backend
-            npm run build
+            ls -la /home/circleci/project/backend/
             cd /home
             tar czf backend.tar.gz -P /home/circleci/project/backend/dist
             cd ~/project/.circleci/ansible
