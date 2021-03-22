@@ -323,32 +323,21 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
-            apk add jq tar gzip git curl
+            apk add jq tar gzip git curl nodejs npm
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
-      - restore_cache:
-          key: backend-build
       - add_ssh_keys:
           fingerprints:
             - "f9:a4:2d:d2:85:49:b8:df:40:2a:b4:00:51:f4:fa:f0"
       - run:
           name: Deploy backend
           command: |
+            cd backend
+            npm i
             echo NODE_ENV=production >> "backend/.env"
-            echo ENVIRONMENT=production > "backend/.env"
-            echo NODE_ENV=production >> "backend/.env"
-            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "backend/.env"
-            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "backend/.env"
-            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "backend/.env"
-            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/.env"
-            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
-            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-            cat .circleci/ansible/inventory.txt
-            ls -la /home/circleci/project/backend/
-            cd /home
-            tar czf backend.tar.gz -P /home/circleci/project/backend/dist
+            npm run build
+            cp package* ./dist
+            cd dist
+            tar -czvf ../app.tar.gz ./*
             cd ~/project/.circleci/ansible
             ansible-playbook deploy-backend.yml --inventory-file=inventory.txt
       - slack-failed
