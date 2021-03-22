@@ -326,7 +326,7 @@ jobs:
             apk add jq tar gzip git curl
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - restore_cache:
-          key: [backend-build]
+          key: backend-build
       - add_ssh_keys:
           fingerprints:
             - "f9:a4:2d:d2:85:49:b8:df:40:2a:b4:00:51:f4:fa:f0"
