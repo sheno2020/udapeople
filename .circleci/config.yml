@@ -335,6 +335,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
+            echo NODE_ENV=production >> "backend/.env"
             cat .circleci/ansible/inventory.txt
             cd backend
             npm run build
