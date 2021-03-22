@@ -335,26 +335,31 @@ jobs:
       - run:
           name: Deploy backend
           command: |
+            cd /home
+            tar czf backend.tar.gz -P /home/circleci/project/backend/dist
             cat .circleci/ansible/inventory.txt
             cd ~/project/.circleci/ansible
             ansible-playbook deploy-backend.yml --inventory-file=inventory.txt
       - slack-failed
       - revert-migrations
       - destroy-environment
-#
-#  smoke-test:
-#    docker:
-#      # Lightweight Docker image
-#    steps:
-#      # Checkout code from git
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # your code here
-#      - run:
-#          name: Get backend url
-#          command: |
-#            # your code here
+
+  smoke-test:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add jq tar gzip git curl
+      - run:
+          name: Get backend url
+          command: |
+            BACKEND_IP=`curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/BACKEND_IP_${CIRCLE_WORKFLOW_ID}`
+            echo "Backend IP: ${BACKEND_IP}"
+            echo "API URL: ${API_URL}"
+            curl -s http://${BACKEND_IP}:3030/api/status
 #      - run:
 #          name: Backend smoke test.
 #          command: |
@@ -363,7 +368,6 @@ jobs:
 #          name: Frontend smoke test.
 #          command: |
 #            # your code here
-#      # Here's where you will add some code to rollback on failure
 #
 #  cloudfront-update:
 #    docker:
@@ -427,8 +431,8 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-#      - smoke-test:
-#          requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
 #          requires: [smoke-test]
 #      - cleanup:
