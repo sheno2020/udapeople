@@ -319,6 +319,8 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - restore_cache:
           key: backend-build
       - run:
@@ -330,12 +332,10 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "f9:a4:2d:d2:85:49:b8:df:40:2a:b4:00:51:f4:fa:f0"
-      - attach_workspace:
-          at: ~/
-      - create-env-file
       - run:
           name: Deploy backend
           command: |
+            cat .circleci/ansible/inventory.txt
             cd ~/project/.circleci/ansible
             ansible-playbook deploy-backend.yml --inventory-file=inventory.txt
       - slack-failed
