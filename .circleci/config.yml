@@ -86,8 +86,8 @@ commands:
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS = `curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}`
-            echo "SUCCESS: $SUCCESS"
-            if(( $SUCCESS==1 ));
+            echo "SUCCESS: ${SUCCESS}"
+            if (( $SUCCESS==1 ))
             then
               cd ~/project/backend
               npm install
@@ -335,9 +335,11 @@ jobs:
       - run:
           name: Deploy backend
           command: |
+            cat .circleci/ansible/inventory.txt
+            cd backend
+            npm run build
             cd /home
             tar czf backend.tar.gz -P /home/circleci/project/backend/dist
-            cat .circleci/ansible/inventory.txt
             cd ~/project/.circleci/ansible
             ansible-playbook deploy-backend.yml --inventory-file=inventory.txt
       - slack-failed
