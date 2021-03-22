@@ -255,7 +255,7 @@ jobs:
             echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-            echo TYPEORM_DATABASE=udapeople >> "backend/.env"
+            echo TYPEORM_DATABASE=postgres >> "backend/.env"
             cat backend/.env
       - run:
           name: Run migrations
