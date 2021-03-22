@@ -271,13 +271,12 @@ jobs:
             cd backend
             npm run migrations > /tmp/migration.log
             cat /tmp/migration.log
-            SUCCESS=$(cat /tmp/migration.log | grep -c "has been executed successfully")
-            echo $SUCCESS
-            if [ $SUCCESS > 0 ]; then exit 0; else exit 1; fi;
       - run:
           name: Send migration results to memstash
           command: |
-            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT --data "$SUCCESS" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+            MIGRATION=`cat /tmp/migration.log | grep -c "has been executed successfully"
+            echo "Migration status: ${MIGRATION}"
+            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT --data "$MIGRATION" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
       - slack-failed
       - destroy-environment
       - revert-migrations
