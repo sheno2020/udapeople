@@ -348,7 +348,6 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             cat .circleci/ansible/inventory.txt
             cd backend
-            npm i
             npm run build
             cd /home
             tar czf backend.tar.gz -P /home/circleci/project/backend/dist
