@@ -326,18 +326,13 @@ jobs:
           command: |
             apk add --update ansible
             apk add jq tar gzip git curl
+            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - add_ssh_keys:
           fingerprints:
             - "f9:a4:2d:d2:85:49:b8:df:40:2a:b4:00:51:f4:fa:f0"
       - attach_workspace:
           at: ~/
       - create-env-file
-      - run:
-          name: Build Backend
-          command: |
-            cd backend
-            npm i
-            npm run build
       - run:
           name: Deploy backend
           command: |
