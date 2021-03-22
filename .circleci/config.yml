@@ -82,7 +82,7 @@ commands:
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS = `curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}`
-
+            echo "SUCCESS: ${SUCCESS}"
             if(( $SUCCESS==1 ));
             then
               cd ~/project/backend
@@ -315,16 +315,19 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - add_ssh_keys:
-          fingerprints:
-            - "f9:a4:2d:d2:85:49:b8:df:40:2a:b4:00:51:f4:fa:f0"
+      - restore_cache:
+          key: backend-build
       - run:
           name: Install dependencies
           command: |
-            apk update
+            apk add --update ansible
             apk add jq tar gzip git curl
+      - add_ssh_keys:
+          fingerprints:
+            - "f9:a4:2d:d2:85:49:b8:df:40:2a:b4:00:51:f4:fa:f0"
       - attach_workspace:
           at: ~/
+      - create-env-file
       - run:
           name: Build Backend
           command: |
@@ -336,6 +339,9 @@ jobs:
           command: |
             cd ~/project/.circleci/ansible
             ansible-playbook deploy-backend.yml --inventory-file=inventory.txt
+      - slack-failed
+      - revert-migrations
+      - destroy-environment
 #
 #  smoke-test:
 #    docker:
