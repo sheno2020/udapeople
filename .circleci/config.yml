@@ -106,13 +106,9 @@ jobs:
             cd frontend
             npm i
             npm run build
-            cp package* ./dist
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      - save_cache:
-          paths: [frontend/dist]
-          key: frontend-dist
       - slack-failed
 
   build-backend:
@@ -128,9 +124,13 @@ jobs:
             cd backend
             npm i
             npm run build
+            cp package* ./dist
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      - save_cache:
+          paths: [backend/dist]
+          key: backend-dist
       - slack-failed
 
   test-frontend:
@@ -322,7 +322,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: frontend-dist
+          key: backend-dist
       - attach_workspace:
           at: ~/
       - run:
