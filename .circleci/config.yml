@@ -124,7 +124,8 @@ jobs:
             cd backend
             npm i
             npm run build
-            cp package* ./dist
+            mkdir dist
+            cp package* dist/
             pwd
             cd /home/circleci/project/backend/dist
             ls -la
