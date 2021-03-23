@@ -124,8 +124,8 @@ jobs:
             cd backend
             npm i
             npm run build
-            ls -la
-            cd dist/
+            cp package* dist/
+            cd /home/circleci/project/backend/dist
             ls -la
       - save_cache:
           paths: [backend/node_modules]
@@ -340,6 +340,7 @@ jobs:
           name: Deploy backend
           command: |
             cd backend/dist
+            ls -la
             tar -czvf ../app.tar.gz ./*
             cd ~/project/.circleci/ansible
             ansible-playbook deploy-backend.yml --inventory-file=inventory.txt
