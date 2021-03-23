@@ -106,9 +106,13 @@ jobs:
             cd frontend
             npm i
             npm run build
+            cp package* ./dist
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      - save_cache:
+          paths: [frontend/dist]
+          key: frontend-dist
       - slack-failed
 
   build-backend:
@@ -317,13 +321,15 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - restore_cache:
+          key: frontend-dist
       - attach_workspace:
           at: ~/
       - run:
           name: Install dependencies
           command: |
             apk add --update ansible
-            apk add jq tar gzip git curl nodejs npm
+            apk add jq tar gzip git curl
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - add_ssh_keys:
           fingerprints:
@@ -331,13 +337,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            export NODE_ENV=production
-            echo NODE_ENV=production >> "backend/.env"
-            cd backend
-            npm i
-            npm run build
-            cp package* ./dist
-            cd dist
+            cd backend/dist
             tar -czvf ../app.tar.gz ./*
             cd ~/project/.circleci/ansible
             ansible-playbook deploy-backend.yml --inventory-file=inventory.txt
