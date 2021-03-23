@@ -125,6 +125,9 @@ jobs:
             npm i
             npm run build
             cp package* ./dist
+            pwd
+            cd /home/circleci/project/backend/dist
+            ls -la
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
