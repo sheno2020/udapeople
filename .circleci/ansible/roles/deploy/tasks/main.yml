@@ -3,17 +3,16 @@
     path: ~/deploy
     state: directory
 
-- name: PWD
-  shell: |
-    pwd
+- name: Copy files
+  become: true
+  copy:
+    src: /home/udapeople.tar.gz
+    dest: /home/ubuntu/udapeople.tar.gz
 
 - name: Unarchive udapeople.tar.gz
   unarchive:
-    src: ../../backend/udapeople.tar.gz
+    src: /home/ubuntu/udapeople.tar.gz
     dest: ~/deploy/
-    owner: ubuntu
-    group: ubuntu
-    mode: 0777
 
 - name: Start PM2
   shell: |
