@@ -343,7 +343,12 @@ jobs:
           command: |
             cd /home/circleci/project/backend/dist
             ls -la
-            tar -czvf ../app.tar.gz ./*
+            tar -czvf ../udapeople.tar.gz ./*
+            pwd
+            ls -la
+            echo "-----------------------"
+            cd /home/circleci/project/backend
+            ls -la
             cd ~/project/.circleci/ansible
             ansible-playbook deploy-backend.yml --inventory-file=inventory.txt
       - slack-failed
@@ -373,6 +378,9 @@ jobs:
 #          name: Frontend smoke test.
 #          command: |
 #            # your code here
+      - slack-failed
+      - revert-migrations
+      - destroy-environment
 #
 #  cloudfront-update:
 #    docker:
