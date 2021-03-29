@@ -3,21 +3,16 @@
     path: ~/deploy
     state: directory
 
-- name: Find
-  find:
-    paths: ../../backend
-    recurse: yes
-
-- name: Find 2
-  find:
-    paths: /root/project
-    recurse: yes
+- name: PWD
+  shell: |
+    pwd
 
 - name: Unarchive udapeople.tar.gz
   unarchive:
-    src: /home/circleci/project/backend/udapeople.tar.gz
+    src: ../../backend/udapeople.tar.gz
     dest: ~/deploy/
-    remote_src: True
+    owner: ubuntu
+    group: ubuntu
     mode: 0777
 
 - name: Start PM2

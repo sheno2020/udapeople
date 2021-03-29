@@ -128,7 +128,6 @@ jobs:
             npm run build
             cp package* dist/
             cd /home/circleci/project/backend/dist
-            ls -la
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
@@ -342,13 +341,7 @@ jobs:
           name: Deploy backend
           command: |
             cd /home/circleci/project/backend/dist
-            ls -la
             tar -czvf ../udapeople.tar.gz ./*
-            pwd
-            ls -la
-            echo "-----------------------"
-            cd /home/circleci/project/backend
-            ls -la
             cd ~/project/.circleci/ansible
             ansible-playbook deploy-backend.yml --inventory-file=inventory.txt
       - slack-failed
