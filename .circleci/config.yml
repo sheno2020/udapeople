@@ -342,9 +342,6 @@ jobs:
           command: |
             cd /home/circleci/project/backend/dist
             tar -czvf /home/udapeople.tar.gz ./*
-            cd /home
-            echo "----------------------"
-            ls -la
             cd ~/project/.circleci/ansible
             ansible-playbook deploy-backend.yml --inventory-file=inventory.txt
       - slack-failed
