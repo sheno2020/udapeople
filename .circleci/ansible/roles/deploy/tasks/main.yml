@@ -1,6 +1,8 @@
 - name: Start PM2
   shell: |
+    ls -la
     cd /home/circleci/project/backend
+    ls -la
     sudo npm install -g npm@latest
     sudo npm install -g webpack-dev-server
     sudo npm install
