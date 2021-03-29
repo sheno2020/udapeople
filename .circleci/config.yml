@@ -340,8 +340,6 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-#           cd /home/circleci/project/backend/dist
-#           tar -czvf ../udapeople.tar.gz ./*
             cd /home
             tar -czvf udapeople.tar.gz /home/circleci/project/backend/dist
             cd ~/project/.circleci/ansible
