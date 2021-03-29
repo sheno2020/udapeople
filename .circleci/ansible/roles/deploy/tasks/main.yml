@@ -13,6 +13,7 @@
   unarchive:
     src: /home/ubuntu/udapeople.tar.gz
     dest: ~/deploy/
+    remote_src: yes
 
 - name: Start PM2
   shell: |
