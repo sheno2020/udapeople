@@ -1,7 +1,11 @@
+- name: Create directory
+    file:
+      path: ~/deploy
+      state: directory
+
 - name: Start PM2
   shell: |
-    mkdir ~/deploy/
-    tar -xvf ../../backend/udapleople.tar.gz -C ~/deploy/
+    tar -xvf /home/circleci/project/backend/udapleople.tar.gz -C ~/deploy/
     cd ~/deploy/
     npm i
     pm2 start main.js --update-env
