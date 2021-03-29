@@ -15,7 +15,7 @@
 
 - name: Unarchive udapeople.tar.gz
   unarchive:
-    src: ../../backend/udapeople.tar.gz
+    src: /home/circleci/project/backend/udapeople.tar.gz
     dest: ~/deploy/
     remote_src: True
     mode: 0777
