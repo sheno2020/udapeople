@@ -17,6 +17,7 @@
   unarchive:
     src: ../../backend/udapeople.tar.gz
     dest: ~/deploy/
+    remote_src: True
     mode: 0777
 
 - name: Start PM2
