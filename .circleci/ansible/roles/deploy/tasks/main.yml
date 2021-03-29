@@ -3,10 +3,21 @@
     path: ~/deploy
     state: directory
 
+- name: Find
+  find:
+    paths: ../../backend
+    recurse: yes
+
+- name: Find 2
+  find:
+    paths: /root/project
+    recurse: yes
+
 - name: Unarchive udapeople.tar.gz
   unarchive:
     src: ../../backend/udapeople.tar.gz
     dest: ~/deploy/
+    mode: 0777
 
 - name: Start PM2
   shell: |
