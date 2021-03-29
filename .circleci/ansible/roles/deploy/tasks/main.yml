@@ -3,9 +3,13 @@
     path: ~/deploy
     state: directory
 
+- name: Unarchive udapeople.tar.gz
+  unarchive:
+    src: ../../backend/udapeople.tar.gz
+    dest: ~/deploy/
+
 - name: Start PM2
   shell: |
-    tar -xvf /home/circleci/project/backend/udapleople.tar.gz -C ~/deploy/
     cd ~/deploy/
     npm i
     pm2 start main.js --update-env
