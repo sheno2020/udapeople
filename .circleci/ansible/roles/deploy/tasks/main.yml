@@ -1,7 +1,7 @@
 - name: Create directory
-    file:
-      path: ~/deploy
-      state: directory
+  file:
+    path: ~/deploy
+    state: directory
 
 - name: Start PM2
   shell: |
