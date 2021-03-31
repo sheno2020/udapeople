@@ -97,7 +97,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys: [frontend-build-${CIRCLE_BUILD_NUM}]
       - run:
           name: Build front-end
           command: |
@@ -106,7 +106,7 @@ jobs:
             npm run build
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build
+          key: frontend-build-${CIRCLE_BUILD_NUM}
       - slack-failed
 
   build-backend:
@@ -115,7 +115,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: [backend-build-${CIRCLE_BUILD_NUM}]
       - run:
           name: Back-end build
           command: |
@@ -123,7 +123,7 @@ jobs:
             npm i
             npm run build
       - save_cache:
-          key: backend-build
+          key: backend-build-${CIRCLE_BUILD_NUM}
           paths:
             - backend/node_modules
             - backend/dist
@@ -265,7 +265,7 @@ jobs:
       - checkout
       - aws-cli/setup
       - restore_cache:
-          key: backend-build
+          key: backend-build-${CIRCLE_BUILD_NUM}
       - create-env-file
       - run:
           name: Run migrations
@@ -292,7 +292,7 @@ jobs:
       - checkout
       - aws-cli/setup
       - restore_cache:
-          key: frontend-build
+          key: frontend-build-${CIRCLE_BUILD_NUM}
       - run:
           name: Get backend url
           command: |
@@ -318,7 +318,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: backend-build
+          key: backend-build-${CIRCLE_BUILD_NUM}
       - run:
           name: Install dependencies
           command: |
