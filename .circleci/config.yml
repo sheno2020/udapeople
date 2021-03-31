@@ -75,8 +75,6 @@ commands:
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
-    parameters:
-      # Add parameter here     
     steps:
       - restore_cache:
           keys: [backend-build]
@@ -317,6 +315,8 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - restore_cache:
+          key: backend-build
       - run:
           name: Install dependencies
           command: |
@@ -332,8 +332,6 @@ jobs:
           name: Deploy backend
           command: |
             cd backend
-            npm i
-            npm run build
             cp package* /home/circleci/project/backend/dist
             cd /home/circleci/project/backend/dist
             tar -czvf /home/udapeople.tar.gz ./*
