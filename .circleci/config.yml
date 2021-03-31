@@ -116,6 +116,8 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      - restore_cache:
+          keys: [backend-dist]
       - run:
           name: Back-end build
           command: |
@@ -125,6 +127,9 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      - save_cache:
+          paths: [backend/dist]
+          key: backend-dist
       - slack-failed
 
   test-frontend:
@@ -316,12 +321,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: backend-build
+          key: backend-dist
       - run:
           name: Install dependencies
           command: |
             apk add --update ansible
-            apk add jq tar gzip git curl npm
+            apk add jq tar gzip git curl
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - attach_workspace:
           at: ~/
