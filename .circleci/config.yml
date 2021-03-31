@@ -369,8 +369,8 @@ jobs:
           command: |
             curl -s http://${BACKEND_IP}:3030/api/status
       - slack-failed
-      - revert-migrations
-      - destroy-environment
+#      - revert-migrations
+#      - destroy-environment
 #
 #  cloudfront-update:
 #    docker:
