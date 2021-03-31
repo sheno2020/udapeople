@@ -116,8 +116,6 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      - restore_cache:
-          keys: [backend-dist]
       - run:
           name: Back-end build
           command: |
@@ -125,11 +123,10 @@ jobs:
             npm i
             npm run build
       - save_cache:
-          paths: [backend/node_modules]
           key: backend-build
-      - save_cache:
-          paths: [backend/dist]
-          key: backend-dist
+          paths:
+            - backend/node_modules
+            - backend/dist
       - slack-failed
 
   test-frontend:
@@ -321,7 +318,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: backend-dist
+          key: backend-build
       - run:
           name: Install dependencies
           command: |
