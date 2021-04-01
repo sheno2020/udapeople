@@ -425,12 +425,12 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            export oldWorkflowID=${aws cloudformation \
-              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text}
+            export OldWorkflowID=$(aws cloudformation \
+                list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+                --no-paginate --output text)
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
-            echo "Old Workflow ID: ${oldWorkflowID}"
+                --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+            echo "Old Workflow ID: ${OldWorkflowID}"
             echo "Stacks: ${STACKS}"
       - run:
           name: Remove old stacks and files
@@ -443,7 +443,7 @@ jobs:
             fi
       - slack-failed
       - revert-migrations
-      - destroy-environment
+#      - destroy-environment
 
 workflows:
   default:
