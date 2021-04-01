@@ -44,6 +44,7 @@ commands:
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             cat backend/.env
+            cp backend/.env /home/.env
 
   slack-failed:
     description: Send notification to Slack if failed
@@ -346,11 +347,13 @@ jobs:
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-<< pipeline.parameters.aws-region >>.amazonaws.com"
             echo "Frontend URL: ${URL}"
-            if curl -s ${URL} | grep "Welcome"
+            if [ curl -s ${URL} | grep "Welcome" ]
             then
-            return 1
+              echo "Frontend successfully deployed"
+              return 1
             else
-            return 0
+              echo "Error"
+              return 0
             fi
       - run:
           name: Get backend url

@@ -26,5 +26,5 @@
 - name: "Copy ~/.bash_profile file"
   become: true
   copy:
-    src: /home/circleci/project/backend/.env
+    src: /home/.env
     dest: /home/ubuntu/.bash_profile
