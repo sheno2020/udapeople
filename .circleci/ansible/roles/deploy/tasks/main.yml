@@ -18,8 +18,5 @@
 - name: Start PM2
   shell: |
     cd ~/deploy/
-    sudo npm install -g npm@latest
-    sudo npm install -g webpack-dev-server
-    sudo npm install
-    sudo npm run build
-    sudo pm2 start npm --name backend -- start
+    npm i
+    pm2 start main.js
