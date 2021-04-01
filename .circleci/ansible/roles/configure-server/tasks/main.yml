@@ -22,3 +22,9 @@
     global: yes
     production: yes
     state: present
+
+- name: "Copy ~/.bash_profile file"
+  become: true
+  copy:
+    src: /home/circleci/project/backend/.env
+    dest: /home/ubuntu/.bash_profile
