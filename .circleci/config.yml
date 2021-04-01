@@ -78,7 +78,7 @@ commands:
         type: string
         default: backend-infra-${CIRCLE_WORKFLOW_ID}
       frontend-infra:
-        type: string
+       type: string
         default: frontend-infra-${CIRCLE_WORKFLOW_ID}
       s3-bucket:
         type: string
@@ -389,43 +389,62 @@ jobs:
               return 1
             fi
       - slack-failed
-#      - revert-migrations
-#      - destroy-environment
-#
-#  cloudfront-update:
-#    docker:
-#      # Docker image here that supports AWS CLI
-#    steps:
-#      # Checkout code from git
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # your code here
-#      - run:
-#          name: Update cloudfront distribution
-#          command: |
-#            # your code here
-#      # Here's where you will add some code to rollback on failure
-#
-#cleanup:
-#    docker:
-#      # Docker image here
-#    steps:
-#      # Checkout code from git
-#      - run:
-#          name: Get old stack workflow id
-#          command: |
-#            # your code here
-#            export OldWorkflowID="the id here"
-#            export STACKS=[] #put the list of stacks here
-#      - run:
-#          name: Remove old stacks and files
-#          command: |
-#            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-#            then
-#              # your code here
-#            fi
-            
+      - revert-migrations
+      - destroy-environment
+
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            yum -y install tar gzip jq git
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --stack-name udapeople-cloudfront \
+              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID}" \
+              -- tags project=udapeople
+      - slack-failed
+      - revert-migrations
+      - destroy-environment
+
+cleanup:
+    docker:
+      docker:
+        - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+        name: Install dependencies
+        command: |
+          yum -y install tar gzip jq git
+      - run:
+          name: Get old stack workflow id
+          command: |
+            export oldWorkflowID=${aws cloudformation \
+              list-exports --query "Exports[?Name==\`WorkflowID`].Value" \
+              --no-paginate --output text}
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+              --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+            echo "Old Workflow ID: ${oldWorkflowID}"
+            echo "Stacks: ${STACKS}"
+      - run:
+          name: Remove old stacks and files
+          command: |
+            if [[ "${STACKS[@]}" =~ "${oldWorkflowID}" ]]
+            then
+              aws s3 rm "s3://udapeople-${oldWorkflowID}" --recursive
+              aws cloudformation delete-stack --stack-name backend-infra-${oldWorkflowID}
+              aws cloudformation delete-stack --stack-name frontend-infra-${oldWorkflowID}
+            fi
+      - slack-failed
+      - revert-migrations
+      - destroy-environment
 
 workflows:
   default:
@@ -456,7 +475,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-#      - cloudfront-update:
-#          requires: [smoke-test]
-#      - cleanup:
-#          requires: [cloudfront-update]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
