@@ -26,7 +26,7 @@
 - name: "Copy ~/.bash_profile file"
   become: true
   copy:
-    src: /home/.env
+    src: /home/.bash
     dest: /home/ubuntu/.bash_profile
     owner: ubuntu
     group: ubuntu

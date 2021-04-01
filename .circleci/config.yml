@@ -45,14 +45,22 @@ commands:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             cat backend/.env
 
-  copy-env-file:
-    description: Copy .env file
+  create-bash-profile-file:
+    description: Create .bash_profile file
     steps:
       - run:
-          name: Copy .env file
+          name: Create .bash_profile file
           when: always
           command: |
-            cp backend/.env /home/.env
+            touch /home/.bash
+            echo "export ENVIRONMENT=production" > "/home/.bash"
+            echo "export TYPEORM_CONNECTION=$TYPEORM_CONNECTION" >> "/home/.bash"
+            echo "export TYPEORM_ENTITIES=$TYPEORM_ENTITIES" >> "/home/.bash"
+            echo "export TYPEORM_HOST=$TYPEORM_HOST" >> "/home/.bash"
+            echo "export TYPEORM_PORT=$TYPEORM_PORT" >> "/home/.bash"
+            echo "export TYPEORM_USERNAME=$TYPEORM_USERNAME" >> "/home/.bash"
+            echo "export TYPEORM_PASSWORD=$TYPEORM_PASSWORD" >> "/home/.bash"
+            echo "export TYPEORM_DATABASE=$TYPEORM_DATABASE" >> "/home/.bash"
 
   slack-failed:
     description: Send notification to Slack if failed
@@ -248,7 +256,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - create-env-file
-      - copy-env-file
+      - create-bash-profile-file
       - run:
           name: Configure server
           command: |
@@ -366,15 +374,12 @@ jobs:
               return 1
             fi
       - run:
-          name: Get backend url
+          name: Backend smoke test
           command: |
             BACKEND_IP=`curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/BACKEND_IP_${CIRCLE_WORKFLOW_ID}`
             echo "Backend IP: ${BACKEND_IP}"
             API_URL="http://${BACKEND_IP}:3030/api/status"
             echo "API URL: $API_URL"
-      - run:
-          name: Backend smoke test.
-          command: |
             if (( curl -s ${API_URL} | grep '"status":"ok"' ))
             then
               echo "Backend successfully deployed"
