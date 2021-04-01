@@ -428,18 +428,18 @@ jobs:
             export OldWorkflowID=$(aws cloudformation \
                 list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
                 --no-paginate --output text)
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-                --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+            export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+                --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
             echo "Old Workflow ID: ${OldWorkflowID}"
             echo "Stacks: ${STACKS}"
       - run:
           name: Remove old stacks and files
           command: |
-            if [[ "${STACKS[@]}" =~ "${oldWorkflowID}" ]]
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
-              aws s3 rm "s3://udapeople-${oldWorkflowID}" --recursive
-              aws cloudformation delete-stack --stack-name backend-infra-${oldWorkflowID}
-              aws cloudformation delete-stack --stack-name frontend-infra-${oldWorkflowID}
+              aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
+              aws cloudformation delete-stack --stack-name backend-infra-${OldWorkflowID}
+              aws cloudformation delete-stack --stack-name frontend-infra-${OldWorkflowID}
             fi
       - slack-failed
       - revert-migrations
