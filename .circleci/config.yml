@@ -31,20 +31,19 @@ commands:
           name: Create .env file
           when: always
           command: |
-            touch backend/.env
-            echo ENVIRONMENT=production > "backend/.env"
-            echo NODE_ENV=production >> "backend/.env"
-            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "backend/.env"
-            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "backend/.env"
-            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "backend/.env"
-            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/.env"
-            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
-            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-            cat backend/.env
-            cp backend/.env /home/.env
+            sudo touch /home/.env
+            echo ENVIRONMENT=production > "/home/.env"
+            echo NODE_ENV=production >> "/home/.env"
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "/home/.env"
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "/home/.env"
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "/home/.env"
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "/home/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "/home/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "/home/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "/home/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "/home/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "/home/.env"
+            cat /home/.env
 
   slack-failed:
     description: Send notification to Slack if failed
