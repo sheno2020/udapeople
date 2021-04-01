@@ -78,7 +78,7 @@ commands:
         type: string
         default: backend-infra-${CIRCLE_WORKFLOW_ID}
       frontend-infra:
-       type: string
+        type: string
         default: frontend-infra-${CIRCLE_WORKFLOW_ID}
       s3-bucket:
         type: string
