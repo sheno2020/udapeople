@@ -76,13 +76,13 @@ commands:
     parameters:
       backend-infra:
         type: string
-        default: backend-infra-${CIRCLE_WORKFLOW_ID}
+        default: backend-infra-${CIRCLE_WORKFLOW_ID:0:7}
       frontend-infra:
         type: string
-        default: frontend-infra-${CIRCLE_WORKFLOW_ID}
+        default: frontend-infra-${CIRCLE_WORKFLOW_ID:0:7}
       s3-bucket:
         type: string
-        default: udapeople-${CIRCLE_WORKFLOW_ID}
+        default: udapeople-${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
           name: Destroy environments
@@ -102,7 +102,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=`curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}`
+            SUCCESS=`curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}`
             if (( $SUCCESS==1 ))
             then
               cd ~/project/backend
@@ -211,8 +211,8 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople type=backend\
-              --stack-name "backend-infra-${CIRCLE_WORKFLOW_ID}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
+              --stack-name "backend-infra-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -220,7 +220,7 @@ jobs:
             echo $BACKEND_IP >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
 
-            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT --data "$BACKEND_IP" https://api.memstash.io/values/BACKEND_IP_${CIRCLE_WORKFLOW_ID}
+            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT --data "$BACKEND_IP" https://api.memstash.io/values/BACKEND_IP_${CIRCLE_WORKFLOW_ID:0:7}
 
       - persist_to_workspace:
           root: ~/
@@ -233,8 +233,8 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople type=frontend\
-              --stack-name "frontend-infra-${CIRCLE_WORKFLOW_ID}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
+              --stack-name "frontend-infra-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
 
       - slack-failed
       - destroy-environment
@@ -286,7 +286,7 @@ jobs:
       - run:
           name: Send migration results to memstash
           command: |
-            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT --data "$MIGRATION" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT --data "$MIGRATION" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
       - slack-failed
       - destroy-environment
       - revert-migrations
@@ -303,7 +303,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            BACKEND_IP=`curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/BACKEND_IP_${CIRCLE_WORKFLOW_ID}`
+            BACKEND_IP=`curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/BACKEND_IP_${CIRCLE_WORKFLOW_ID:0:7}`
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
       - run:
@@ -314,7 +314,7 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
-            aws s3 cp --recursive frontend/dist "s3://udapeople-${CIRCLE_WORKFLOW_ID}"
+            aws s3 cp --recursive frontend/dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}"
       - slack-failed
       - revert-migrations
       - destroy-environment
@@ -363,7 +363,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-<< pipeline.parameters.aws-region >>.amazonaws.com"
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-<< pipeline.parameters.aws-region >>.amazonaws.com"
             echo "Frontend URL: ${URL}"
             if (( curl -s ${URL} | grep "Welcome" ))
             then
@@ -376,7 +376,7 @@ jobs:
       - run:
           name: Backend smoke test
           command: |
-            BACKEND_IP=`curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/BACKEND_IP_${CIRCLE_WORKFLOW_ID}`
+            BACKEND_IP=`curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/BACKEND_IP_${CIRCLE_WORKFLOW_ID:0:7}`
             echo "Backend IP: ${BACKEND_IP}"
             API_URL="http://${BACKEND_IP}:3030/api/status"
             echo "API URL: $API_URL"
@@ -407,7 +407,7 @@ jobs:
             aws cloudformation update-stack \
               --stack-name udapeople-cloudfront \
               --use-previous-template \
-              --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID}
+              --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
       - slack-failed
       - revert-migrations
       - destroy-environment
