@@ -30,4 +30,4 @@
     dest: /home/ubuntu/.bash_profile
     owner: ubuntu
     group: ubuntu
-    mode: 0644
+    mode: 0664

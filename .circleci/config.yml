@@ -362,7 +362,7 @@ jobs:
               echo "Frontend successfully deployed"
               return 0
             else
-              echo "Error"
+              echo "Error in frontend smoke test"
               return 1
             fi
       - run:
@@ -370,10 +370,19 @@ jobs:
           command: |
             BACKEND_IP=`curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/BACKEND_IP_${CIRCLE_WORKFLOW_ID}`
             echo "Backend IP: ${BACKEND_IP}"
+            API_URL="http://${BACKEND_IP}:3030/api/status"
+            echo "API URL: $API_URL"
       - run:
           name: Backend smoke test.
           command: |
-            curl -s http://${BACKEND_IP}:3030/api/status
+            if (( curl -s ${API_URL} | grep '"status":"ok"' ))
+            then
+              echo "Backend successfully deployed"
+              return 0
+            else
+              echo "Error in backend smoke test"
+              return 1
+            fi
       - slack-failed
 #      - revert-migrations
 #      - destroy-environment

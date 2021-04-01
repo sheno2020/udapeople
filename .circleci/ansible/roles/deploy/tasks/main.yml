@@ -17,6 +17,7 @@
 
 - name: Start PM2
   shell: |
+    . ~/.bash_profile
     cd ~/deploy/
     sudo npm cache clean -f
     sudo npm install -g n
