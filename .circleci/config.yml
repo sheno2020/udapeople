@@ -236,6 +236,7 @@ jobs:
           command: |
             apk add --update ansible
             apk add jq tar gzip git curl
+            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - attach_workspace:
           at: ~/
       - create-env-file
