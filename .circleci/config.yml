@@ -262,6 +262,11 @@ jobs:
           command: |
             cd ~/project/.circleci/ansible
             ansible-playbook configure-server.yml --inventory-file=inventory.txt
+      - run:
+          name: Configure Prometheus
+          command: |
+            cd ~/project/.circleci/ansible
+            ansible-playbook prometheus.yml --inventory-file=inventory.txt
       - slack-failed
       - destroy-environment
 
