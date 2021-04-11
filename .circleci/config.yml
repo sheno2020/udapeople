@@ -102,8 +102,8 @@ commands:
           when: on_fail
           command: |
             aws s3 rm s3://<< parameters.s3-bucket >> --recursive
-            aws cloudformation delete-infra --infra-name << parameters.backend-infra >>
-            aws cloudformation delete-infra --infra-name << parameters.frontend-infra >>
+            aws cloudformation delete-infra --stack-name << parameters.backend-infra >>
+            aws cloudformation delete-infra --stack-name << parameters.frontend-infra >>
             exit 0
 
   revert-migrations:
@@ -224,7 +224,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=sheno-people type=backend\
-              --infra-name "backend-infra-${CIRCLE_WORKFLOW_ID}" \
+              --stack-name "backend-infra-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
       - run:
           name: Add back-end ip to ansible inventory
@@ -246,7 +246,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=sheno-people type=frontend\
-              --infra-name "frontend-infra-${CIRCLE_WORKFLOW_ID}" \
+              --stack-name "frontend-infra-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
 
       #- slack-failed
@@ -428,7 +428,7 @@ jobs:
           name: Update cloudfront distribution
           command: |
             aws cloudformation update-infra \
-              --infra-name sheno-people-cloudfront \
+              --stack-name sheno-people-cloudfront \
               --use-previous-template \
               --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID}
       #- slack-failed
@@ -451,15 +451,15 @@ jobs:
                 list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
                 --no-paginate --output text)
             infraS=$(aws cloudformation list-infras --query "infraSummaries[*].infraName" \
-                --infra-status-filter CREATE_COMPLETE --no-paginate --output text)
+                --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
             echo "Old Workflow ID: ${OldWorkflowID}"
             echo "infras: ${infraS}"
       
             if [[ "${infraS[@]}" =~ "${OldWorkflowID}" ]]
             then
               aws s3 rm s3://sheno-people-${OldWorkflowID} --recursive
-              aws cloudformation delete-infra --infra-name backend-infra-${OldWorkflowID}
-              aws cloudformation delete-infra --infra-name frontend-infra-${OldWorkflowID}
+              aws cloudformation delete-infra --stack-name backend-infra-${OldWorkflowID}
+              aws cloudformation delete-infra --stack-name frontend-infra-${OldWorkflowID}
             fi
       #- slack-failed
       - revert-migrations
