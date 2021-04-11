@@ -1,5 +1,5 @@
 Description: >
-  UdaPeople backend stack.
+  sheno-people backend stack.
 
 Parameters:
   ID:
