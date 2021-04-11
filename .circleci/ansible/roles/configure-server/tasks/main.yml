@@ -1,33 +1,20 @@
-- name: "Upgrade Packages"
+---
+- name: "upgrade packages."
   become: true
   apt:
     upgrade: "yes"
 
-- name: "Install Python3"
-  become: true
-  shell:
-    apt install -y python3
-
-- name: "Install nodejs and dependencies"
+- name: "install dependencies."
   become: true
   apt:
     name: ["nodejs", "npm"]
     state: latest
     update_cache: yes
 
-- name: "Install pm2"
+- name: "install pm2"
   become: true
   npm:
     name: pm2
     global: yes
     production: yes
     state: present
-
-- name: "Copy ~/.bash_profile file"
-  become: true
-  copy:
-    src: /home/.bash
-    dest: /home/ubuntu/.bash_profile
-    owner: ubuntu
-    group: ubuntu
-    mode: 0664
