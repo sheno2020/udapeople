@@ -1,5 +1,5 @@
 Description: >
-  Cloudfront distribution for UdaPeople.
+  Cloudfront distribution for sheno-people.
 
 Parameters:
   WorkflowID:
@@ -14,7 +14,7 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: !Sub "udapeople-${WorkflowID}.s3.amazonaws.com"
+          - DomainName: !Sub "sheno-people-${WorkflowID}.s3.amazonaws.com"
             Id: webpage
             CustomOriginConfig:
               "HTTPPort": "80"
