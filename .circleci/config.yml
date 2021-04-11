@@ -1,13 +1,13 @@
 version: 2.1
 
 orbs:
-  slack: circleci/slack@4.3.1
+  slack: circleci/slack@4.3.3
   aws-cli: circleci/aws-cli@1.3.0
 
 parameters:
   memstash-token:
     type: string
-    default: a0ad56c5-0970-4814-bfb1-7e78582de0a5
+    default: b4faec55-30f0-4bf0-bbb4-a722fe314562
   aws-region:
     type: string
     default: us-west-2
@@ -56,6 +56,8 @@ commands:
             echo "export ENVIRONMENT=production" > "/home/.bash"
             echo "export TYPEORM_CONNECTION=$TYPEORM_CONNECTION" >> "/home/.bash"
             echo "export TYPEORM_ENTITIES=$TYPEORM_ENTITIES" >> "/home/.bash"
+            echo "export TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS" >> "/home/.bash"
+            echo "export TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR" >> "/home/.bash"
             echo "export TYPEORM_HOST=$TYPEORM_HOST" >> "/home/.bash"
             echo "export TYPEORM_PORT=$TYPEORM_PORT" >> "/home/.bash"
             echo "export TYPEORM_USERNAME=$TYPEORM_USERNAME" >> "/home/.bash"
@@ -77,12 +79,13 @@ commands:
     steps:
       - extract-commit-message
       - slack/notify:
-          channel: C01S8A7HD1P
+          channel: devops
           event: fail
-          template: SLACK_TEMPLATE
+        # message: Fail  message to notify the channel about the latest build
+          template: basic_fail_1
 
   destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    description: Destroy back-end and front-end cloudformation infras given a workflow ID.
     parameters:
       backend-infra:
         type: string
@@ -92,15 +95,15 @@ commands:
         default: frontend-infra-${CIRCLE_WORKFLOW_ID}
       s3-bucket:
         type: string
-        default: udapeople-${CIRCLE_WORKFLOW_ID}
+        default: sheno-people-${CIRCLE_WORKFLOW_ID}
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
             aws s3 rm s3://<< parameters.s3-bucket >> --recursive
-            aws cloudformation delete-stack --stack-name << parameters.backend-infra >>
-            aws cloudformation delete-stack --stack-name << parameters.frontend-infra >>
+            aws cloudformation delete-infra --infra-name << parameters.backend-infra >>
+            aws cloudformation delete-infra --infra-name << parameters.frontend-infra >>
             exit 0
 
   revert-migrations:
@@ -134,7 +137,7 @@ jobs:
             npm run build
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build-{{ .Environment.CIRCLE_WORKFLOW_ID }}	
+          key: frontend-build-{{ .Environment.CIRCLE_WORKFLOW_ID }}
       - slack-failed
 
   build-backend:
@@ -206,7 +209,7 @@ jobs:
             npm audit fix --audit-level=critical --force
       - slack-failed
 
-  deploy-infrastructure:
+  deploy-infra:
     docker:
       - image: amazon/aws-cli
     steps:
@@ -216,12 +219,12 @@ jobs:
           command: |
             yum -y install tar gzip jq git
       - run:
-          name: Ensure back-end infrastructure exists
+          name: Ensure back-end infra exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --tags project=udapeople type=backend\
-              --stack-name "backend-infra-${CIRCLE_WORKFLOW_ID}" \
+              --tags project=sheno-people type=backend\
+              --infra-name "backend-infra-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
       - run:
           name: Add back-end ip to ansible inventory
@@ -229,7 +232,7 @@ jobs:
             BACKEND_IP=`aws ec2 describe-instances --filters "Name=tag:type,Values=backend" --query "Reservations[*].Instances[*].PublicIpAddress" --output text`
             echo $BACKEND_IP >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
-
+            
             curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT --data "$BACKEND_IP" https://api.memstash.io/values/BACKEND_IP_${CIRCLE_WORKFLOW_ID}
 
       - persist_to_workspace:
@@ -238,25 +241,25 @@ jobs:
             - project/.circleci/ansible/inventory.txt
 
       - run:
-          name: Ensure front-end infrastructure exist
+          name: Ensure front-end infra exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags project=udapeople type=frontend\
-              --stack-name "frontend-infra-${CIRCLE_WORKFLOW_ID}" \
+              --tags project=sheno-people type=frontend\
+              --infra-name "frontend-infra-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
 
       - slack-failed
       - destroy-environment
 
-  configure-infrastructure:
+  configure-infra:
     docker:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - "f9:a4:2d:d2:85:49:b8:df:40:2a:b4:00:51:f4:fa:f0"
+            - "77:50:06:fa:0d:9f:b2:0e:66:6a:46:6a:5d:68:36:b1"
       - run:
           name: Install dependencies
           command: |
@@ -334,7 +337,7 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
-            aws s3 cp --recursive frontend/dist "s3://udapeople-${CIRCLE_WORKFLOW_ID}"
+            aws s3 cp --recursive frontend/dist "s3://sheno-people-${CIRCLE_WORKFLOW_ID}"
       - slack-failed
       - revert-migrations
       - destroy-environment
@@ -356,14 +359,14 @@ jobs:
           at: ~/
       - add_ssh_keys:
           fingerprints:
-            - "f9:a4:2d:d2:85:49:b8:df:40:2a:b4:00:51:f4:fa:f0"
+            - "77:50:06:fa:0d:9f:b2:0e:66:6a:46:6a:5d:68:36:b1"
       - run:
           name: Deploy backend
           command: |
             cd backend
             cp package* /home/circleci/project/backend/dist
             cd /home/circleci/project/backend/dist
-            tar -czvf /home/udapeople.tar.gz ./*
+            tar -czvf /home/sheno-people.tar.gz ./*
             cd ~/project/.circleci/ansible
             ansible-playbook deploy-backend.yml --inventory-file=inventory.txt
       - slack-failed
@@ -383,7 +386,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-<< pipeline.parameters.aws-region >>.amazonaws.com"
+            URL="http://sheno-people-${CIRCLE_WORKFLOW_ID}.s3-website-<< pipeline.parameters.aws-region >>.amazonaws.com"
             echo "Frontend URL: ${URL}"
             if (( curl -s ${URL} | grep "Welcome" ))
             then
@@ -424,8 +427,8 @@ jobs:
       - run:
           name: Update cloudfront distribution
           command: |
-            aws cloudformation update-stack \
-              --stack-name udapeople-cloudfront \
+            aws cloudformation update-infra \
+              --infra-name sheno-people-cloudfront \
               --use-previous-template \
               --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID}
       - slack-failed
@@ -442,21 +445,21 @@ jobs:
           command: |
             yum -y install tar gzip jq git
       - run:
-          name: Get old stack workflow id and remove old stacks and files
+          name: Get old infra workflow id and remove old infras and files
           command: |
             OldWorkflowID=$(aws cloudformation \
                 list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
                 --no-paginate --output text)
-            STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-                --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
+            infraS=$(aws cloudformation list-infras --query "infraSummaries[*].infraName" \
+                --infra-status-filter CREATE_COMPLETE --no-paginate --output text)
             echo "Old Workflow ID: ${OldWorkflowID}"
-            echo "Stacks: ${STACKS}"
+            echo "infras: ${infraS}"
       
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            if [[ "${infraS[@]}" =~ "${OldWorkflowID}" ]]
             then
-              aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
-              aws cloudformation delete-stack --stack-name backend-infra-${OldWorkflowID}
-              aws cloudformation delete-stack --stack-name frontend-infra-${OldWorkflowID}
+              aws s3 rm s3://sheno-people-${OldWorkflowID} --recursive
+              aws cloudformation delete-infra --infra-name backend-infra-${OldWorkflowID}
+              aws cloudformation delete-infra --infra-name frontend-infra-${OldWorkflowID}
             fi
       - slack-failed
       - revert-migrations
@@ -467,31 +470,30 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-#      - test-frontend:
-#          requires: [build-frontend]
-#      - test-backend:
-#          requires: [build-backend]
-#      - scan-backend:
-#          requires: [build-backend]
-#      - scan-frontend:
-#          requires: [build-frontend]
-      - deploy-infrastructure:
-#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          requires: [build-backend, build-frontend]
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infra:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend, build-backend, build-frontend]
           filters:
             branches:
               only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
+      - configure-infra:
+          requires: [deploy-infra]
       - run-migrations:
-          requires: [configure-infrastructure]
+          requires: [configure-infra]
       - deploy-frontend:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+      #- smoke-test:
+      #    requires: [deploy-backend, deploy-frontend]
+      #- cloudfront-update:
+      #    requires: [smoke-test]
+      #- cleanup:
+      #    requires: [cloudfront-update]
