@@ -6,12 +6,12 @@
 - name: Copy files
   become: true
   copy:
-    src: /home/udapeople.tar.gz
-    dest: /home/ubuntu/udapeople.tar.gz
+    src: /home/sheno-people.tar.gz
+    dest: /home/ubuntu/sheno-people.tar.gz
 
-- name: Unarchive udapeople.tar.gz
+- name: Unarchive sheno-people.tar.gz
   unarchive:
-    src: /home/ubuntu/udapeople.tar.gz
+    src: /home/ubuntu/sheno-people.tar.gz
     dest: ~/deploy/
     remote_src: yes
 
