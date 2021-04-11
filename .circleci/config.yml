@@ -138,7 +138,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build-{{ .Environment.CIRCLE_WORKFLOW_ID }}
-      - slack-failed
+      #- slack-failed
 
   build-backend:
     docker:
@@ -156,7 +156,7 @@ jobs:
           paths:
             - backend/node_modules
             - backend/dist
-      - slack-failed
+      #- slack-failed
 
   test-frontend:
     docker:
@@ -170,7 +170,7 @@ jobs:
             npm i
             npm install oauth-sign
             npm run test
-      - slack-failed
+      #- slack-failed
 
   test-backend:
     docker:
@@ -183,7 +183,7 @@ jobs:
             cd backend
             npm i
             npm run test
-      - slack-failed
+      #- slack-failed
 
   scan-frontend:
     docker:
@@ -195,7 +195,7 @@ jobs:
           command: |
             cd frontend
             npm audit --audit-level=critical
-      - slack-failed
+      #- slack-failed
 
   scan-backend:
     docker:
@@ -207,7 +207,7 @@ jobs:
           command: |
             cd backend
             npm audit fix --audit-level=critical --force
-      - slack-failed
+      #- slack-failed
 
   deploy-infra:
     docker:
@@ -249,7 +249,7 @@ jobs:
               --infra-name "frontend-infra-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
 
-      - slack-failed
+      #- slack-failed
       - destroy-environment
 
   configure-infra:
@@ -281,7 +281,7 @@ jobs:
           command: |
             cd ~/project/.circleci/ansible
             ansible-playbook prometheus.yml --inventory-file=inventory.txt
-      - slack-failed
+      #- slack-failed
       - destroy-environment
 
   run-migrations:
@@ -306,7 +306,7 @@ jobs:
           name: Send migration results to memstash
           command: |
             curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT --data "$MIGRATION" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
-      - slack-failed
+      #- slack-failed
       - destroy-environment
       - revert-migrations
 
@@ -338,7 +338,7 @@ jobs:
           name: Deploy frontend objects
           command: |
             aws s3 cp --recursive frontend/dist "s3://sheno-people-${CIRCLE_WORKFLOW_ID}"
-      - slack-failed
+      #- slack-failed
       - revert-migrations
       - destroy-environment
 
@@ -369,7 +369,7 @@ jobs:
             tar -czvf /home/sheno-people.tar.gz ./*
             cd ~/project/.circleci/ansible
             ansible-playbook deploy-backend.yml --inventory-file=inventory.txt
-      - slack-failed
+      #- slack-failed
       - revert-migrations
       - destroy-environment
 
@@ -411,7 +411,7 @@ jobs:
               echo "Error in backend smoke test"
               return 1
             fi
-      - slack-failed
+      #- slack-failed
       - revert-migrations
       - destroy-environment
 
@@ -431,7 +431,7 @@ jobs:
               --infra-name sheno-people-cloudfront \
               --use-previous-template \
               --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID}
-      - slack-failed
+      #- slack-failed
       - revert-migrations
       - destroy-environment
 
@@ -461,7 +461,7 @@ jobs:
               aws cloudformation delete-infra --infra-name backend-infra-${OldWorkflowID}
               aws cloudformation delete-infra --infra-name frontend-infra-${OldWorkflowID}
             fi
-      - slack-failed
+      #- slack-failed
       - revert-migrations
       - destroy-environment
 
